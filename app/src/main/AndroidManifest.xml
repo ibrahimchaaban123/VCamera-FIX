@@ -1,67 +1,70 @@
-manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" package="virtual.camera.app">
-<!--  أساسية  -->
-<uses-permission android:name="android.permission.INTERNET"/>
-<uses-permission android:name="android.permission.CAMERA"/>
-<uses-permission android:name="android.permission.RECORD_AUDIO"/>
-<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-<uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"/>
-<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
-<!--  تخزين - أندرويد 13+  -->
-<uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-<uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
-<uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
-<!--  تخزين - أندرويد 12 وأقل  -->
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>
-<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage"/>
-<!--  شبكة  -->
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
-<uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-<!--  نظام  -->
-<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-<uses-permission android:name="android.permission.WAKE_LOCK"/>
-<uses-permission android:name="android.permission.VIBRATE"/>
-<uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
-<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
-<uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission"/>
-<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
-<uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
-<!--  باقي  -->
-<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
-<uses-permission android:name="android.permission.FLASHLIGHT"/>
-<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-<uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
-<uses-permission android:name="android.permission.EXPAND_STATUS_BAR"/>
-<uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
-<uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
-<uses-feature android:name="android.hardware.camera" android:required="false"/>
-<uses-feature android:name="android.hardware.camera.front" android:required="false"/>
-<uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
-<application android:name="virtual.camera.app.app.App" android:allowBackup="true" android:icon="@mipmap/ic_launcher" android:label="@string/app_name" android:networkSecurityConfig="@xml/network_security_config" android:supportsRtl="true" android:theme="@style/Theme.VCamera" android:extractNativeLibs="true" android:usesCleartextTraffic="true" android:hardwareAccelerated="true" android:largeHeap="true" tools:targetApi="33">
-<activity android:name="virtual.camera.app.view.main.WelcomeActivity" android:launchMode="singleTop" android:exported="true" android:screenOrientation="portrait" android:theme="@style/WelcomeTheme">
-<intent-filter>
-<action android:name="android.intent.action.MAIN"/>
-<category android:name="android.intent.category.LAUNCHER"/>
-</intent-filter>
-</activity>
-<activity android:name="virtual.camera.app.view.main.MainActivity" android:exported="false" android:screenOrientation="portrait" android:launchMode="singleTop">
-<intent-filter>
-<action android:name="android.intent.action.MAIN"/>
-</intent-filter>
-</activity>
-<activity android:name="virtual.camera.app.view.list.ListActivity" android:exported="false" android:screenOrientation="portrait"/>
-<activity android:name="virtual.camera.app.view.setting.SettingActivity" android:exported="false" android:screenOrientation="portrait"/>
-<activity android:name="virtual.camera.app.view.gms.GmsManagerActivity" android:exported="false" android:screenOrientation="portrait"/>
-<!--  خدمة الكاميرا الافتراضية - مهمة جداً  -->
-<service android:name="virtual.camera.app.camera.CameraService" android:exported="false" android:foregroundServiceType="camera|microphone"/>
-<receiver android:name="virtual.camera.app.app.BootReceiver" android:exported="true">
-<intent-filter>
-<action android:name="android.intent.action.BOOT_COMPLETED"/>
-<action android:name="android.intent.action.QUICKBOOT_POWERON"/>
-</intent-filter>
-</receiver>
-</application>
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="virtual.camera.app">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <application
+        android:name="virtual.camera.app.app.App"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.VCamera"
+        android:extractNativeLibs="true"
+        android:usesCleartextTraffic="true"
+        android:hardwareAccelerated="true"
+        android:largeHeap="true"
+        tools:targetApi="33">
+
+        <activity
+            android:name="virtual.camera.app.view.main.WelcomeActivity"
+            android:launchMode="singleTop"
+            android:exported="true"
+            android:theme="@style/WelcomeTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="virtual.camera.app.view.main.MainActivity" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="virtual.camera.app.view.list.ListActivity" android:exported="false"/>
+        <activity android:name="virtual.camera.app.view.setting.SettingActivity" android:exported="false"/>
+        <activity android:name="virtual.camera.app.view.gms.GmsManagerActivity" android:exported="false"/>
+
+    </application>
+
 </manifest>
