@@ -21,6 +21,7 @@ import virtual.camera.app.databinding.ActivityListBinding
 import virtual.camera.app.util.InjectionUtil
 import virtual.camera.app.util.inflate
 import virtual.camera.app.view.base.BaseActivity
+import virtual.camera.camera.MultiPreferences
 
 
 class ListActivity : BaseActivity() {
@@ -34,6 +35,10 @@ class ListActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
         initToolbar(viewBinding.toolbarLayout.toolbar, R.string.installed_app, true)
+
+        // تهيئة MultiPreferences
+        MultiPreferences.init(this)
+
         mAdapter = RVAdapter<InstalledAppBean>(this, ListAdapter()).bind(viewBinding.recyclerView)
             .setItemClickListener { _, item, _ ->
                 finishWithResult(item.packageName)
@@ -43,9 +48,10 @@ class ListActivity : BaseActivity() {
         initViewModel()
     }
 
+    // ✅ عرض نافذة اختيار الوسائط
     private fun showMediaPicker() {
         MaterialDialog(this).show {
-            title(text = "اختر نوع الوسائط")
+            title(text = "اختر مصدر الكاميرا الافتراضية")
             listItems(items = listOf("🎥 فيديو", "🖼️ صورة")) { _, index, _ ->
                 when (index) {
                     0 -> pickVideoResult.launch("video/*")
@@ -55,15 +61,45 @@ class ListActivity : BaseActivity() {
         }
     }
 
+    // ✅ اختيار فيديو وحفظه في MultiPreferences
     private val pickVideoResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.run { finishWithResult(uri.toString()) }
+            uri?.let {
+                // منح صلاحية القراءة الدائمة
+                contentResolver.takePersistableUriPermission(
+                    it,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+                // حفظ مسار الفيديو
+                MultiPreferences.getInstance().setString("camera_source", it.toString())
+                MultiPreferences.getInstance().setString("camera_type", "video")
+                showSuccessDialog("تم تعيين الفيديو ككاميرا افتراضية ✅")
+                finishWithResult(it.toString())
+            }
         }
 
+    // ✅ اختيار صورة وحفظها في MultiPreferences
     private val pickImageResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.run { finishWithResult(uri.toString()) }
+            uri?.let {
+                contentResolver.takePersistableUriPermission(
+                    it,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+                MultiPreferences.getInstance().setString("camera_source", it.toString())
+                MultiPreferences.getInstance().setString("camera_type", "image")
+                showSuccessDialog("تم تعيين الصورة ككاميرا افتراضية ✅")
+                finishWithResult(it.toString())
+            }
         }
+
+    private fun showSuccessDialog(message: String) {
+        MaterialDialog(this).show {
+            title(text = "نجح ✅")
+            message(text = message)
+            positiveButton(text = "حسناً")
+        }
+    }
 
     private fun initSearchView() {
         viewBinding.searchView.setOnQueryTextListener(object :
@@ -82,6 +118,7 @@ class ListActivity : BaseActivity() {
             .get(ListViewModel::class.java)
         val onlyShowXp = intent.getBooleanExtra("onlyShowXp", false)
         val userID = intent.getIntExtra("userID", 0)
+
         if (onlyShowXp) {
             viewModel.getInstalledModules()
             viewBinding.toolbarLayout.toolbar.setTitle(R.string.installed_module)
@@ -89,10 +126,12 @@ class ListActivity : BaseActivity() {
             viewModel.getInstallAppList(userID)
             viewBinding.toolbarLayout.toolbar.setTitle(R.string.installed_app)
         }
+
         viewModel.loadingLiveData.observe(this) {
             if (it) viewBinding.stateView.showLoading()
             else viewBinding.stateView.showContent()
         }
+
         viewModel.appsLiveData.observe(this) {
             if (it != null) {
                 this.appList = it
@@ -138,7 +177,7 @@ class ListActivity : BaseActivity() {
         val item = menu!!.findItem(R.id.list_search)
         viewBinding.searchView.setMenuItem(item)
         // ✅ زر اختيار فيديو/صورة
-        menu.add(0, 999, 1, "📹 وسائط")
+        menu.add(0, 999, 1, "📹 كاميرا")
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         return true
     }
