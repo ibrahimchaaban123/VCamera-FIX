@@ -26,72 +26,43 @@ import virtual.camera.app.view.base.BaseActivity
 class ListActivity : BaseActivity() {
 
     private val viewBinding: ActivityListBinding by inflate()
-
     private lateinit var mAdapter: RVAdapter<InstalledAppBean>
-
     private lateinit var viewModel: ListViewModel
-
     private var appList: List<InstalledAppBean> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
-
         initToolbar(viewBinding.toolbarLayout.toolbar, R.string.installed_app, true)
-
         mAdapter = RVAdapter<InstalledAppBean>(this, ListAdapter()).bind(viewBinding.recyclerView)
             .setItemClickListener { _, item, _ ->
                 finishWithResult(item.packageName)
             }
-
         viewBinding.recyclerView.layoutManager = LinearLayoutManager(this)
-
         initSearchView()
         initViewModel()
-        initMediaButtons()
-    }
-
-    // ✅ إضافة أزرار اختيار الفيديو والصورة
-    private fun initMediaButtons() {
-        // زر اختيار وسائط (فيديو أو صورة)
-        viewBinding.toolbarLayout.toolbar.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.list_pick_media -> {
-                    showMediaPicker()
-                    true
-                }
-                else -> false
-            }
-        }
     }
 
     private fun showMediaPicker() {
         MaterialDialog(this).show {
             title(text = "اختر نوع الوسائط")
-            listItems(items = listOf("🎥 فيديو", "🖼️ صورة", "📱 تطبيق مثبت")) { _, index, _ ->
+            listItems(items = listOf("🎥 فيديو", "🖼️ صورة")) { _, index, _ ->
                 when (index) {
                     0 -> pickVideoResult.launch("video/*")
                     1 -> pickImageResult.launch("image/*")
-                    2 -> { /* يبقى في القائمة الحالية */ }
                 }
             }
         }
     }
 
-    // ✅ اختيار فيديو
     private val pickVideoResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.run {
-                finishWithResult(uri.toString())
-            }
+            uri?.run { finishWithResult(uri.toString()) }
         }
 
-    // ✅ اختيار صورة
     private val pickImageResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.run {
-                finishWithResult(uri.toString())
-            }
+            uri?.run { finishWithResult(uri.toString()) }
         }
 
     private fun initSearchView() {
@@ -101,14 +72,8 @@ class ListActivity : BaseActivity() {
                 filterApp(newText)
                 return true
             }
-
-            override fun onQueryTextCleared(): Boolean {
-                return true
-            }
-
-            override fun onQueryTextSubmit(query: String): Boolean {
-                return true
-            }
+            override fun onQueryTextCleared(): Boolean = true
+            override fun onQueryTextSubmit(query: String): Boolean = true
         })
     }
 
@@ -117,7 +82,6 @@ class ListActivity : BaseActivity() {
             .get(ListViewModel::class.java)
         val onlyShowXp = intent.getBooleanExtra("onlyShowXp", false)
         val userID = intent.getIntExtra("userID", 0)
-
         if (onlyShowXp) {
             viewModel.getInstalledModules()
             viewBinding.toolbarLayout.toolbar.setTitle(R.string.installed_module)
@@ -125,15 +89,10 @@ class ListActivity : BaseActivity() {
             viewModel.getInstallAppList(userID)
             viewBinding.toolbarLayout.toolbar.setTitle(R.string.installed_app)
         }
-
         viewModel.loadingLiveData.observe(this) {
-            if (it) {
-                viewBinding.stateView.showLoading()
-            } else {
-                viewBinding.stateView.showContent()
-            }
+            if (it) viewBinding.stateView.showLoading()
+            else viewBinding.stateView.showContent()
         }
-
         viewModel.appsLiveData.observe(this) {
             if (it != null) {
                 this.appList = it
@@ -159,8 +118,7 @@ class ListActivity : BaseActivity() {
     private fun finishWithResult(source: String) {
         intent.putExtra("source", source)
         setResult(Activity.RESULT_OK, intent)
-        val imm: InputMethodManager =
-            getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         window.peekDecorView()?.run {
             imm.hideSoftInputFromWindow(windowToken, 0)
         }
@@ -179,7 +137,18 @@ class ListActivity : BaseActivity() {
         menuInflater.inflate(R.menu.menu_list, menu)
         val item = menu!!.findItem(R.id.list_search)
         viewBinding.searchView.setMenuItem(item)
+        // ✅ زر اختيار فيديو/صورة
+        menu.add(0, 999, 1, "📹 وسائط")
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == 999) {
+            showMediaPicker()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onStop() {
