@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:foregroundGravity="clip_vertical|clip_horizontal">
+    <FrameLayout
+        android:id="@+id/player_surface_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ViewStub
+            android:layout_gravity="center"
+            android:id="@+id/surface_stub"
+            android:layout="@layout/surface_view"
+            android:inflatedId="@+id/surface_video"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <ViewStub
+            android:layout_gravity="center"
+            android:id="@+id/texture_stub"
+            android:layout="@layout/texture_view"
+            android:inflatedId="@+id/texture_video"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </FrameLayout>
+    <ViewStub
+        android:id="@+id/subtitles_surface_stub"
+        android:layout="@layout/surface_view"
+        android:inflatedId="@+id/surface_subtitles"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</FrameLayout>

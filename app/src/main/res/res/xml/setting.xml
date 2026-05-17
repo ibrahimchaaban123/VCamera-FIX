@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        app:key="xp_cat"
+        app:title="@string/xp_setting">
+        <SwitchPreferenceCompat
+            app:key="xp_enable"
+            app:title="@string/enable_xposed"/>
+        <Preference
+            android:dependency="xp_enable"
+            app:key="xp_module"
+            app:summary="@string/jump_module"
+            app:title="@string/module_list"/>
+    </PreferenceCategory>
+    <PreferenceCategory app:title="@string/gps_setting">
+        <SwitchPreferenceCompat
+            app:key="gps_enable"
+            app:title="@string/mokc_location_enable"/>
+        <Preference
+            android:dependency="gps_enable"
+            app:key="fake_gps"
+            app:summary="@string/go_to_set_location"
+            app:title="@string/location_manager"/>
+    </PreferenceCategory>
+</PreferenceScreen>

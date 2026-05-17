@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.AppCompatTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:textSize="12sp"
+    android:gravity="center_vertical"
+    android:id="@+id/item_default_text"
+    android:focusable="true"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:maxLines="1"
+    android:maxEms="20"/>

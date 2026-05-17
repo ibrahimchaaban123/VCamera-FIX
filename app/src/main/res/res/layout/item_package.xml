@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"/>
+        <com.othershe.cornerlabelview.CornerLabelView
+            android:layout_gravity="start|top"
+            android:id="@+id/cornerLabel"
+            android:visibility="invisible"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:bg_color="@color/primary"
+            app:position="left_top"
+            app:side_length="22dp"
+            app:text="*"/>
+    </FrameLayout>
+    <LinearLayout
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="8dp">
+        <TextView
+            android:textSize="16sp"
+            android:textColor="@color/primary_text"
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/packageName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</LinearLayout>
