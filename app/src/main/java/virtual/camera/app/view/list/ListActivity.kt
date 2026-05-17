@@ -3,6 +3,7 @@ package virtual.camera.app.view.list
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -11,6 +12,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import cbfg.rvadapter.RVAdapter
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.list.listItems
 import com.ferfalk.simplesearchview.SimpleSearchView
 import virtual.camera.app.R
 import virtual.camera.app.bean.InstalledAppBean
@@ -36,19 +39,64 @@ class ListActivity : BaseActivity() {
 
         initToolbar(viewBinding.toolbarLayout.toolbar, R.string.installed_app, true)
 
-        mAdapter = RVAdapter<InstalledAppBean>(this,ListAdapter()).bind(viewBinding.recyclerView).setItemClickListener { _, item, _ ->
-            finishWithResult(item.packageName)
-        }
+        mAdapter = RVAdapter<InstalledAppBean>(this, ListAdapter()).bind(viewBinding.recyclerView)
+            .setItemClickListener { _, item, _ ->
+                finishWithResult(item.packageName)
+            }
 
         viewBinding.recyclerView.layoutManager = LinearLayoutManager(this)
 
-
         initSearchView()
         initViewModel()
+        initMediaButtons()
     }
 
+    // ✅ إضافة أزرار اختيار الفيديو والصورة
+    private fun initMediaButtons() {
+        // زر اختيار وسائط (فيديو أو صورة)
+        viewBinding.toolbarLayout.toolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.list_pick_media -> {
+                    showMediaPicker()
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun showMediaPicker() {
+        MaterialDialog(this).show {
+            title(text = "اختر نوع الوسائط")
+            listItems(items = listOf("🎥 فيديو", "🖼️ صورة", "📱 تطبيق مثبت")) { _, index, _ ->
+                when (index) {
+                    0 -> pickVideoResult.launch("video/*")
+                    1 -> pickImageResult.launch("image/*")
+                    2 -> { /* يبقى في القائمة الحالية */ }
+                }
+            }
+        }
+    }
+
+    // ✅ اختيار فيديو
+    private val pickVideoResult =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.run {
+                finishWithResult(uri.toString())
+            }
+        }
+
+    // ✅ اختيار صورة
+    private val pickImageResult =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.run {
+                finishWithResult(uri.toString())
+            }
+        }
+
     private fun initSearchView() {
-        viewBinding.searchView.setOnQueryTextListener(object : SimpleSearchView.OnQueryTextListener {
+        viewBinding.searchView.setOnQueryTextListener(object :
+            SimpleSearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String): Boolean {
                 filterApp(newText)
                 return true
@@ -61,14 +109,14 @@ class ListActivity : BaseActivity() {
             override fun onQueryTextSubmit(query: String): Boolean {
                 return true
             }
-
         })
     }
 
     private fun initViewModel() {
-        viewModel = ViewModelProvider(this, InjectionUtil.getListFactory()).get(ListViewModel::class.java)
+        viewModel = ViewModelProvider(this, InjectionUtil.getListFactory())
+            .get(ListViewModel::class.java)
         val onlyShowXp = intent.getBooleanExtra("onlyShowXp", false)
-        val userID = intent.getIntExtra("userID",0)
+        val userID = intent.getIntExtra("userID", 0)
 
         if (onlyShowXp) {
             viewModel.getInstalledModules()
@@ -83,7 +131,6 @@ class ListActivity : BaseActivity() {
                 viewBinding.stateView.showLoading()
             } else {
                 viewBinding.stateView.showContent()
-
             }
         }
 
@@ -109,22 +156,16 @@ class ListActivity : BaseActivity() {
         mAdapter.setItems(newList)
     }
 
-    private val openDocumentedResult = registerForActivityResult(ActivityResultContracts.GetContent()) {
-        it?.run {
-            finishWithResult(it.toString())
-        }
-    }
-
     private fun finishWithResult(source: String) {
         intent.putExtra("source", source)
         setResult(Activity.RESULT_OK, intent)
-        val imm: InputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm: InputMethodManager =
+            getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         window.peekDecorView()?.run {
             imm.hideSoftInputFromWindow(windowToken, 0)
         }
         finish()
     }
-
 
     override fun onBackPressed() {
         if (viewBinding.searchView.isSearchOpen) {
@@ -138,7 +179,6 @@ class ListActivity : BaseActivity() {
         menuInflater.inflate(R.menu.menu_list, menu)
         val item = menu!!.findItem(R.id.list_search)
         viewBinding.searchView.setMenuItem(item)
-
         return true
     }
 
@@ -150,11 +190,10 @@ class ListActivity : BaseActivity() {
         viewModel.appsLiveData.removeObservers(this)
     }
 
-
-    companion object{
-        fun start(context: Context,onlyShowXp:Boolean){
-            val intent = Intent(context,ListActivity::class.java)
-            intent.putExtra("onlyShowXp",onlyShowXp)
+    companion object {
+        fun start(context: Context, onlyShowXp: Boolean) {
+            val intent = Intent(context, ListActivity::class.java)
+            intent.putExtra("onlyShowXp", onlyShowXp)
             context.startActivity(intent)
         }
     }
