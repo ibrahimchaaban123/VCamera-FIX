@@ -1,0 +1,36 @@
+name: Patch APK
+on: [push]
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      
+      - name: Download APKTool
+        run: wget https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.9.3.jar -O apktool.jar
+
+      - name: Decompile APK
+        run: java -jar apktool.jar d VCamera.apk -o VCamera_decompiled --no-src -f
+
+      - name: Fix AndroidManifest
+        run: |
+          cp VCamera_decompiled/AndroidManifest.xml VCamera_decompiled/AndroidManifest.xml.bak
+
+      - name: Recompile APK
+        run: java -jar apktool.jar b VCamera_decompiled -o VCamera_patched.apk
+
+      - name: Sign APK
+        run: |
+          keytool -genkey -v -keystore key.jks -alias key -keyalg RSA -keysize 2048 -validity 10000 -storepass password123 -keypass password123 -dname "CN=VCamera"
+          jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore key.jks -storepass password123 -keypass password123 VCamera_patched.apk key
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VCamera-Patched
+          path: VCamera_patched.apk
