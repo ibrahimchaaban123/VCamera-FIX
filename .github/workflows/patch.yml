@@ -5,22 +5,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-      
+
       - name: Download APKTool
-        run: wget https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.9.3.jar -O apktool.jar
+        run: wget https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar -O apktool.jar
 
       - name: Decompile APK
         run: java -jar apktool.jar d VCamera.apk -o VCamera_decompiled --no-src -f
-
-      - name: Fix AndroidManifest
-        run: |
-          cp VCamera_decompiled/AndroidManifest.xml VCamera_decompiled/AndroidManifest.xml.bak
 
       - name: Recompile APK
         run: java -jar apktool.jar b VCamera_decompiled -o VCamera_patched.apk
