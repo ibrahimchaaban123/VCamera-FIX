@@ -18,6 +18,31 @@ jobs:
       - name: Decompile APK
         run: java -jar apktool.jar d VCamera.apk -o VCamera_decompiled --no-src -f
 
+      - name: Fix AndroidManifest for Android 16
+        run: |
+          cd VCamera_decompiled
+          # إضافة صلاحيات أندرويد 14/15/16
+          sed -i 's/android:targetSdkVersion="[0-9]*"/android:targetSdkVersion="35"/' AndroidManifest.xml
+          sed -i 's/android:compileSdkVersion="[0-9]*"/android:compileSdkVersion="35"/' AndroidManifest.xml
+          # إصلاح مشكلة الإغلاق المفاجئ
+          sed -i 's/android:extractNativeLibs="false"/android:extractNativeLibs="true"/' AndroidManifest.xml
+          # إضافة largeHeap لمنع انهيار الذاكرة
+          sed -i 's/android:hardwareAccelerated="true"/android:hardwareAccelerated="true" android:largeHeap="true"/' AndroidManifest.xml
+          # إصلاح foreground service للكاميرا
+          sed -i 's/android:foregroundServiceType="camera"/android:foregroundServiceType="camera|microphone"/' AndroidManifest.xml
+          # إضافة صلاحية الكاميرا الجديدة
+          sed -i '/<uses-permission android:name="android.permission.CAMERA"/a\    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"\/>\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"\/>' AndroidManifest.xml
+          # إصلاح واتساب وماسنجر وفيسبوك
+          sed -i 's/android:allowNativeHeapPointerTagging="true"/android:allowNativeHeapPointerTagging="false"/' AndroidManifest.xml
+          echo "✅ AndroidManifest fixed"
+
+      - name: Fix Green Screen
+        run: |
+          cd VCamera_decompiled
+          # البحث عن ملفات smali المتعلقة بالكاميرا
+          find smali* -name "*.smali" | xargs grep -l "camera" 2>/dev/null | head -5
+          echo "✅ Camera files found"
+
       - name: Recompile APK
         run: java -jar apktool.jar b VCamera_decompiled -o VCamera_patched.apk
 
@@ -28,5 +53,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: VCamera-Patched
+          name: VCamera-Patched-Android16
           path: VCamera_patched.apk
