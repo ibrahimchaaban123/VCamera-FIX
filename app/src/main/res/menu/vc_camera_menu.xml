@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/protect_method_disable_camera"
+        android:title="@string/vc_protect_method_disable_camera"/>
+    <item
+        android:id="@+id/protect_method_local"
+        android:title="@string/vc_protect_method_local"/>
+    <item
+        android:id="@+id/protect_method_network"
+        android:title="@string/vc_protect_method_network"/>
+    <item
+        android:id="@+id/protect_method_local_picture"
+        android:title="@string/vc_protect_method_local_picture"/>
+</menu>

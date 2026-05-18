@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:id="@+id/powerSpinner_preference"
+    android:background="?android:attr/selectableItemBackground"
+    android:focusable="true"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:paddingEnd="?android:attr/scrollbarSize">
+    <androidx.appcompat.widget.AppCompatTextView
+        android:textSize="16sp"
+        android:textColor="?android:attr/textColorPrimary"
+        android:ellipsize="marquee"
+        android:id="@+id/preference_title"
+        android:fadingEdge="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:singleLine="true"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="6dp"/>
+</LinearLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaults>
+    <entry>
+        <key>show_finish_ad_unit 
+        </key>
+        <value>true 
+        </value>
+    </entry>
+    <entry>
+        <key>paywall_type 
+        </key>
+        <value>v1 
+        </value>
+    </entry>
+    <entry>
+        <key>sub_month 
+        </key>
+        <value>sub_m_5 
+        </value>
+    </entry>
+    <entry>
+        <key>sub_year 
+        </key>
+        <value>sub_y_25 
+        </value>
+    </entry>
+    <entry>
+        <key>onboarding_boost 
+        </key>
+        <value>false 
+        </value>
+    </entry>
+</defaults>
