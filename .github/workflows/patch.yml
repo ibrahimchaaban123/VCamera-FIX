@@ -21,35 +21,46 @@ jobs:
       - name: Fix AndroidManifest for Android 16
         run: |
           cd VCamera_decompiled
-          # إضافة صلاحيات أندرويد 14/15/16
-          sed -i 's/android:targetSdkVersion="[0-9]*"/android:targetSdkVersion="35"/' AndroidManifest.xml
-          sed -i 's/android:compileSdkVersion="[0-9]*"/android:compileSdkVersion="35"/' AndroidManifest.xml
-          # إصلاح مشكلة الإغلاق المفاجئ
-          sed -i 's/android:extractNativeLibs="false"/android:extractNativeLibs="true"/' AndroidManifest.xml
-          # إضافة largeHeap لمنع انهيار الذاكرة
-          sed -i 's/android:hardwareAccelerated="true"/android:hardwareAccelerated="true" android:largeHeap="true"/' AndroidManifest.xml
-          # إصلاح foreground service للكاميرا
-          sed -i 's/android:foregroundServiceType="camera"/android:foregroundServiceType="camera|microphone"/' AndroidManifest.xml
-          # إضافة صلاحية الكاميرا الجديدة
-          sed -i '/<uses-permission android:name="android.permission.CAMERA"/a\    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"\/>\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"\/>' AndroidManifest.xml
-          # إصلاح واتساب وماسنجر وفيسبوك
-          sed -i 's/android:allowNativeHeapPointerTagging="true"/android:allowNativeHeapPointerTagging="false"/' AndroidManifest.xml
-          echo "✅ AndroidManifest fixed"
 
-      - name: Fix Green Screen
-        run: |
-          cd VCamera_decompiled
-          # البحث عن ملفات smali المتعلقة بالكاميرا
-          find smali* -name "*.smali" | xargs grep -l "camera" 2>/dev/null | head -5
-          echo "✅ Camera files found"
+          # تحديث targetSdkVersion إلى 35
+          sed -i 's/android:targetSdkVersion="[0-9]*"/android:targetSdkVersion="35"/' AndroidManifest.xml
+
+          # إصلاح extractNativeLibs
+          sed -i 's/android:extractNativeLibs="false"/android:extractNativeLibs="true"/' AndroidManifest.xml
+
+          # إصلاح foreground service للكاميرا
+          sed -i 's/foregroundServiceType="camera"/foregroundServiceType="camera|microphone"/' AndroidManifest.xml
+
+          # إصلاح pointer tagging
+          sed -i 's/android:allowNativeHeapPointerTagging="true"/android:allowNativeHeapPointerTagging="false"/' AndroidManifest.xml
+
+          # إضافة صلاحية FOREGROUND_SERVICE_CAMERA إذا لم تكن موجودة
+          grep -q "FOREGROUND_SERVICE_CAMERA" AndroidManifest.xml || \
+          sed -i '/<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/a\    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"\/>\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"\/>/' AndroidManifest.xml
+
+          # إضافة USE_EXACT_ALARM إذا لم تكن موجودة
+          grep -q "USE_EXACT_ALARM" AndroidManifest.xml || \
+          sed -i '/<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/a\    <uses-permission android:name="android.permission.USE_EXACT_ALARM"\/>/' AndroidManifest.xml
+
+          echo "✅ AndroidManifest fixed"
+          cat AndroidManifest.xml | grep -i "targetSdk\|extractNative\|foregroundService\|largeHeap"
 
       - name: Recompile APK
         run: java -jar apktool.jar b VCamera_decompiled -o VCamera_patched.apk
 
       - name: Sign APK
         run: |
-          keytool -genkey -v -keystore key.jks -alias key -keyalg RSA -keysize 2048 -validity 10000 -storepass password123 -keypass password123 -dname "CN=VCamera"
-          jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore key.jks -storepass password123 -keypass password123 VCamera_patched.apk key
+          keytool -genkey -v -keystore key.jks -alias key -keyalg RSA \
+            -keysize 2048 -validity 10000 \
+            -storepass password123 -keypass password123 \
+            -dname "CN=VCamera"
+          jarsigner -verbose \
+            -sigalg SHA1withRSA \
+            -digestalg SHA1 \
+            -keystore key.jks \
+            -storepass password123 \
+            -keypass password123 \
+            VCamera_patched.apk key
 
       - uses: actions/upload-artifact@v4
         with:
