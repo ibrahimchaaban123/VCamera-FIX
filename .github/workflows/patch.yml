@@ -43,26 +43,29 @@ jobs:
           sed -i '/<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/a\    <uses-permission android:name="android.permission.USE_EXACT_ALARM"\/>/' AndroidManifest.xml
 
           echo "✅ AndroidManifest fixed"
-          cat AndroidManifest.xml | grep -i "targetSdk\|extractNative\|foregroundService\|largeHeap"
 
       - name: Recompile APK
         run: java -jar apktool.jar b VCamera_decompiled -o VCamera_patched.apk
 
+      - name: Zipalign APK
+        run: |
+          ${ANDROID_HOME}/build-tools/30.0.3/zipalign -v 4 VCamera_patched.apk VCamera_aligned.apk
+
       - name: Sign APK
         run: |
-          keytool -genkey -v -keystore key.jks -alias key -keyalg RSA \
-            -keysize 2048 -validity 10000 \
+          keytool -genkey -v -keystore key.jks -alias key \
+            -keyalg RSA -keysize 2048 -validity 10000 \
             -storepass password123 -keypass password123 \
-            -dname "CN=VCamera"
-          jarsigner -verbose \
-            -sigalg SHA1withRSA \
-            -digestalg SHA1 \
-            -keystore key.jks \
-            -storepass password123 \
-            -keypass password123 \
-            VCamera_patched.apk key
+            -dname "CN=VCamera, OU=Dev, O=VCamera, L=City, S=State, C=US"
+
+          ${ANDROID_HOME}/build-tools/30.0.3/apksigner sign \
+            --ks key.jks \
+            --ks-pass pass:password123 \
+            --key-pass pass:password123 \
+            --out VCamera_final.apk \
+            VCamera_aligned.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: VCamera-Patched-Android16
-          path: VCamera_patched.apk
+          path: VCamera_final.apk
